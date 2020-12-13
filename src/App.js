@@ -6,16 +6,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 class App extends React.Component {
   state = {
-    contacts: [
-      // { id: 'id-1', name: 'Rosie', number: '459-12-56' },
-      // { id: 'id-2', name: 'Hermione', number: '443-89-12' },
-      // { id: 'id-3', name: 'Eden', number: '645-17-79' },
-      // { id: 'id-4', name: 'Annie', number: '227-91-26' },
-    ],
+    contacts: [],
     filter: '',
   };
 
   formSubmitHandler = data => {
+    const newContact = { ...data, id: uuidv4() };
+
     if (
       this.state.contacts
         .map(contact => contact.name.toLocaleLowerCase())
@@ -23,12 +20,9 @@ class App extends React.Component {
     ) {
       alert(`${data.name} is already in contacts`);
     } else {
-      this.setState(
-        //   prevState => ({
-        //   contacts: prevState.contacts.push({ ...data, id: uuidv4() }),
-        // }));
-        ({ contacts }) => contacts.push({ ...data, id: uuidv4() }),
-      );
+      this.setState(prevState => ({
+        contacts: [newContact, ...prevState.contacts],
+      }));
     }
   };
 
@@ -41,26 +35,19 @@ class App extends React.Component {
       contacts: prevState.contacts.filter(contact => contact.id !== contactId),
     }));
   };
-  // getVisibleContacts = () => {
-  //   const { contacts, filter } = this.state;
 
-  //   const normalazedFilter = filter.toLocaleLowerCase();
-
-  //   return contacts.filter(contact =>
-  //     contact.name.toLocaleLowerCase().includes(normalazedFilter),
-  //   );
-  // };
-
-  render() {
-    // const filteredContacts = this.getVisibleContacts();
-
+  getVisibleContacts = () => {
     const { contacts, filter } = this.state;
 
     const normalazedFilter = filter.toLocaleLowerCase();
 
-    const filteredContacts = contacts.filter(contact =>
+    return contacts.filter(contact =>
       contact.name.toLocaleLowerCase().includes(normalazedFilter),
     );
+  };
+
+  render() {
+    const filteredContacts = this.getVisibleContacts();
 
     return (
       <div>
@@ -68,7 +55,7 @@ class App extends React.Component {
         <ContactForm onSubmit={this.formSubmitHandler} />
 
         <h2>Contacts</h2>
-        <Filter value={filter} onChange={this.chengeFilter} />
+        <Filter value={this.state.filter} onChange={this.chengeFilter} />
         <ContactList
           contacts={filteredContacts}
           onDeleteContact={this.deleteContact}
